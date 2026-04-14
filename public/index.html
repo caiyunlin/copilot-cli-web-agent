@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>Copilot CLI Web Agent</title>
+  <link rel="stylesheet" href="style.css">
+  <!-- Marked.js for Markdown rendering -->
+  <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+  <!-- DOMPurify for sanitizing HTML -->
+  <script src="https://cdn.jsdelivr.net/npm/dompurify/dist/purify.min.js"></script>
+</head>
+<body>
+  <div id="app">
+    <header>
+      <div class="header-content">
+        <span class="logo">🤖</span>
+        <h1>Copilot CLI Web Agent</h1>
+        <button id="new-session-btn" class="icon-btn" title="New Session">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M12 5v14M5 12h14"></path>
+          </svg>
+        </button>
+        <span id="status-indicator" class="status disconnected" title="Disconnected">●</span>
+      </div>
+    </header>
+
+    <main id="chat-container">
+      <div id="messages"></div>
+    </main>
+
+    <footer>
+      <form id="chat-form" autocomplete="off">
+        <div class="input-row">
+          <textarea
+            id="chat-input"
+            placeholder="Type a message..."
+            rows="1"
+            maxlength="10000"
+          ></textarea>
+          <button type="submit" id="send-btn" disabled title="Send">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M22 2L11 13"></path>
+              <path d="M22 2L15 22L11 13L2 9L22 2Z"></path>
+            </svg>
+          </button>
+        </div>
+      </form>
+    </footer>
+
+    <!-- Permission dialog -->
+    <div id="permission-overlay" class="overlay hidden">
+      <div class="dialog">
+        <h3>⚠️ Permission Request</h3>
+        <p id="permission-description"></p>
+        <pre id="permission-details"></pre>
+        <div class="dialog-actions">
+          <button id="perm-deny" class="btn btn-deny">Deny</button>
+          <button id="perm-allow" class="btn btn-allow">Allow</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Password dialog -->
+    <div id="auth-overlay" class="overlay hidden">
+      <div class="dialog auth-dialog">
+        <h3>🔒 Password Required</h3>
+        <p>Please enter the access password to continue</p>
+        <form id="auth-form" autocomplete="off">
+          <input
+            type="password"
+            id="auth-password"
+            placeholder="Enter password..."
+            autocomplete="current-password"
+            required
+          />
+          <p id="auth-error" class="auth-error hidden">Incorrect password, please try again</p>
+          <button type="submit" class="btn btn-allow" style="width:100%;margin-top:8px;">Confirm</button>
+        </form>
+      </div>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
