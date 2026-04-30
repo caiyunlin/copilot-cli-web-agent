@@ -37,6 +37,45 @@
   let isPrompting = false;
   let isAuthenticated = false;
 
+  // --- Chat history persistence ---
+  const HISTORY_KEY = `copilot_acp_history_${deviceId}`;
+  const MAX_HISTORY = 200;
+
+  function loadHistory() {
+    try {
+      return JSON.parse(localStorage.getItem(HISTORY_KEY)) || [];
+    } catch { return []; }
+  }
+
+  function saveHistory(history) {
+    try {
+      if (history.length > MAX_HISTORY) history = history.slice(-MAX_HISTORY);
+      localStorage.setItem(HISTORY_KEY, JSON.stringify(history));
+    } catch { /* storage full — ignore */ }
+  }
+
+  function appendHistory(role, content) {
+    const history = loadHistory();
+    history.push({ role, content, ts: Date.now() });
+    saveHistory(history);
+  }
+
+  function clearHistory() {
+    localStorage.removeItem(HISTORY_KEY);
+  }
+
+  function restoreHistory() {
+    const history = loadHistory();
+    if (!history.length) return;
+    for (const entry of history) {
+      if (entry.role === "user") {
+        addMessage("user", entry.content);
+      } else if (entry.role === "assistant") {
+        addMessage("assistant", renderMarkdown(entry.content), true);
+      }
+    }
+  }
+
   // --- Markdown ---
   if (typeof marked !== "undefined") {
     marked.setOptions({
@@ -109,6 +148,7 @@
     if (!text || !ws || ws.readyState !== WebSocket.OPEN || isPrompting) return;
 
     addMessage("user", text);
+    appendHistory("user", text);
     ws.send(JSON.stringify({ type: "chat", content: text }));
 
     chatInput.value = "";
@@ -165,6 +205,7 @@
     if (!ws || ws.readyState !== WebSocket.OPEN || isPrompting) return;
     if (!confirm("Start a new session? Current conversation will be cleared.")) return;
     messagesEl.innerHTML = "";
+    clearHistory();
     setInputEnabled(false);
     ws.send(JSON.stringify({ type: "new_session" }));
   });
@@ -208,6 +249,7 @@
             } else {
               // Final render
               currentAssistantEl.innerHTML = renderMarkdown(currentAssistantText);
+              appendHistory("assistant", currentAssistantText);
             }
             if (msg.content) {
               addMessage("system", msg.content);
@@ -298,6 +340,7 @@
   }
 
   // --- Init ---
+  restoreHistory();
   setInputEnabled(false);
   connect();
 })();
