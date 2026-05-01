@@ -11,13 +11,19 @@
   If set, users must enter this password in the web UI before chatting.
 .PARAMETER NoTunnel
   Skip creating the dev tunnel (local-only mode).
+.PARAMETER Persist
+  Use a pre-created persistent tunnel (fixed URL) instead of a temporary one.
+  You must create the tunnel beforehand with:
+    devtunnel create --allow-anonymous
+    devtunnel port create -p <Port>
 #>
 param(
   [int]$Port = 3000,
   [string]$Cwd,
   [string]$CliArgs,
   [string]$Password,
-  [switch]$NoTunnel
+  [switch]$NoTunnel,
+  [switch]$Persist
 )
 
 $ErrorActionPreference = "Stop"
@@ -89,7 +95,11 @@ try {
       Write-Host "Starting Dev Tunnel..." -ForegroundColor Cyan
       Write-Host "Press Ctrl+C to stop." -ForegroundColor Yellow
       Write-Host ""
-      devtunnel host -p $Port --allow-anonymous
+      if ($Persist) {
+        devtunnel host
+      } else {
+        devtunnel host -p $Port --allow-anonymous
+      }
     }
   } else {
     Write-Host "Running in local-only mode. Access at http://localhost:$Port" -ForegroundColor Yellow
