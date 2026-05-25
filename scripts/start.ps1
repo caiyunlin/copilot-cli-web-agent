@@ -96,7 +96,7 @@ try {
       Write-Host "Press Ctrl+C to stop." -ForegroundColor Yellow
       Write-Host ""
       if ($Persist) {
-        devtunnel host
+        devtunnel host my-tunnel.asse
       } else {
         devtunnel host -p $Port --allow-anonymous
       }
